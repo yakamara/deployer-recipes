@@ -1,0 +1,24 @@
+{
+    "name": "yakamara/deployer-recipes",
+    "description": "Yakamara recipes for Deployer",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gregor Harlan",
+            "email": "gregor.harlan@yakamara.de"
+        }
+    ],
+
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "deployer/deployer": "^7.0@rc"
+    },
+
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    }
+}
