@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Deployer;
 
-require dirname(DEPLOYER_BIN, 2).'/recipe/symfony.php';
+require 'phar://'.DEPLOYER_BIN.'/recipe/symfony.php';
 require __DIR__.'/base.php';
 
 set('copy_dirs', [

@@ -12,8 +12,10 @@
 
     "require": {
         "php": "^7.4 || ^8.0",
-        "deployer/deployer": "^7.0@rc"
+        "deployer/deployer": "^7.0-rc.8@rc"
     },
+
+    "bin": "bin/dep",
 
     "config": {
         "preferred-install": {

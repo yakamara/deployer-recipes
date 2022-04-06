@@ -6,9 +6,11 @@ namespace Deployer;
 
 use Deployer\Task\Context;
 
+$baseDir = dirname(DEPLOYER_DEPLOY_FILE);
+
 localhost('local')
-    ->set('deploy_path', DEPLOYER_ROOT.'/.build')
-    ->set('release_path', DEPLOYER_ROOT.'/.build/release')
+    ->set('deploy_path', $baseDir.'/.build')
+    ->set('release_path', $baseDir.'/.build/release')
     ->set('current_path', '{{release_path}}')
 ;
 
@@ -65,14 +67,14 @@ task('release', [
     'deploy:publish',
 ]);
 
-task('build:setup', function () {
+task('build:setup', function () use ($baseDir) {
     if ('local' !== Context::get()->getHost()->getAlias()) {
         throw new \RuntimeException('Task "build" can only be called on host "local"');
     }
 
     if (getenv('CI')) {
-        set('deploy_path', DEPLOYER_ROOT);
-        set('release_path', DEPLOYER_ROOT);
+        set('deploy_path', $baseDir);
+        set('release_path', $baseDir);
 
         return;
     }
@@ -111,8 +113,8 @@ task('build:assets', function () {
     }
 });
 
-task('upload', function () {
-    $source = getenv('CI') ? DEPLOYER_ROOT : host('local')->get('release_path');
+task('upload', function () use ($baseDir) {
+    $source = getenv('CI') ? $baseDir : host('local')->get('release_path');
 
     upload($source.'/', '{{release_path}}', [
         'flags' => '-az',
