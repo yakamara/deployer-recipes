@@ -1,7 +1,0 @@
-#!/usr/bin/env php
-<?php
-
-declare(strict_types=1);
-
-/** @noinspection PhpUndefinedVariableInspection */
-require $_composer_bin_dir.'/deployer.phar';
