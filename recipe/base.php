@@ -117,8 +117,9 @@ task('upload', function () use ($baseDir) {
     $source = getenv('CI') ? $baseDir : host('local')->get('release_path');
 
     upload($source.'/', '{{release_path}}', [
-        'flags' => '-az',
+        'flags' => '-rltz',
         'options' => [
+            '--executability',
             '--exclude', '.cache',
             '--exclude', '.git',
             '--exclude', '.tools',
