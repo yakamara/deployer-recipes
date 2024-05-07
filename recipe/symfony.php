@@ -29,7 +29,7 @@ task('deploy:stop_workers', function () {
     }
 
     $console = '{{bin/php}} {{previous_release}}/bin/console';
-    if (test('[[ $('.$console.' list messenger --raw {{console_options}} | grep messenger:stop-workers) ]]')) {
+    if (test('[[ $('.$console.' list --raw {{console_options}} | grep messenger:stop-workers) ]]')) {
         run($console.' messenger:stop-workers {{console_options}}');
     }
 });
