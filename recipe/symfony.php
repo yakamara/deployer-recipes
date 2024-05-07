@@ -18,6 +18,11 @@ set('copy_dirs', [
     'vendor',
 ]);
 
+task('deploy:assets:install', function () {
+    run('{{bin/console}} assets:install --symlink {{console_options}}');
+});
+after('deploy:cache:clear', 'deploy:assets:install');
+
 task('deploy:stop_workers', function () {
     if (!has('previous_release')) {
         return;
