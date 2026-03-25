@@ -25,6 +25,8 @@ set('clear_paths', [
     'tests',
     'CLAUDE.md',
     '.editorconfig',
+    '.env.dev',
+    '.env.test',
     '.git-blame-ignore-revs',
     '.gitignore',
     '.gitlab-ci.yml',
