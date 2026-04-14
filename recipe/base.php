@@ -20,6 +20,7 @@ set('composer_options', '--verbose --prefer-dist --no-progress --no-interaction 
 
 set('clear_paths', [
     '.idea',
+    '.claude',
     'assets',
     'gulpfile.js',
     'tests',
