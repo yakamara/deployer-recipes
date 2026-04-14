@@ -96,8 +96,34 @@ task('build:setup', function () use ($baseDir) {
     invoke('deploy:update_code');
 });
 
-set('assets_install', fn () => test('[ -f {{release_path}}/yarn.lock ]') ? 'yarn' : 'npm install');
-set('assets_build', fn () => test('[ -f {{release_path}}/yarn.lock ]') ? 'yarn build' : 'npm run build');
+set('assets_package_manager', function () {
+    if (test('[ -f {{release_path}}/yarn.lock ]')) {
+        return 'yarn';
+    }
+    if (test('[ -f {{release_path}}/package-lock.json ]')) {
+        return 'npm';
+    }
+
+    return null;
+});
+
+set('assets_install', function () {
+    $ci = getenv('CI');
+
+    return match (get('assets_package_manager')) {
+        'yarn' => 'yarn install --frozen-lockfile' . ($ci ? ' --cache-folder .assets-cache' : ''),
+        'npm' => 'npm ci' . ($ci ? ' --cache .assets-cache' : ''),
+        default => null,
+    };
+});
+
+set('assets_build', function () {
+    return match (get('assets_package_manager')) {
+        'yarn' => 'yarn build',
+        'npm' => 'npm run build',
+        default => null,
+    };
+});
 
 task('build:assets', function () {
     $install = get('assets_install');
@@ -108,19 +134,10 @@ task('build:assets', function () {
 
     cd('{{release_path}}');
 
-    $isLocal = !getenv('CI');
-    if ($isLocal && test('[ -d {{deploy_path}}/.node_modules ]')) {
-        run('mv {{deploy_path}}/.node_modules node_modules');
-    }
-
     run($install);
 
     if ($build = get('assets_build')) {
         run($build);
-    }
-
-    if ($isLocal) {
-        run('mv node_modules {{deploy_path}}/.node_modules');
     }
 });
 
@@ -131,6 +148,7 @@ task('upload', function () use ($baseDir) {
         'flags' => '-rltz',
         'options' => [
             '--executability',
+            '--exclude', '.assets-cache',
             '--exclude', '.cache',
             '--exclude', '.git',
             '--exclude', '.tools',
