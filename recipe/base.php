@@ -23,7 +23,6 @@ set('clear_paths', [
     'assets',
     'gulpfile.js',
     'tests',
-    'CLAUDE.md',
     '.editorconfig',
     '.env.dev',
     '.env.test',
@@ -31,7 +30,9 @@ set('clear_paths', [
     '.gitignore',
     '.gitlab-ci.yml',
     '.php-cs-fixer.dist.php',
+    'CLAUDE.md',
     'package.json',
+    'package-lock.json',
     'phpstan.dist.neon',
     'phpstan.neon',
     'phpunit.dist.xml',
@@ -94,8 +95,8 @@ task('build:setup', function () use ($baseDir) {
     invoke('deploy:update_code');
 });
 
-set('assets_install', 'yarn');
-set('assets_build', 'yarn build');
+set('assets_install', fn () => test('[ -f {{release_path}}/yarn.lock ]') ? 'yarn' : 'npm install');
+set('assets_build', fn () => test('[ -f {{release_path}}/yarn.lock ]') ? 'yarn build' : 'npm run build');
 
 task('build:assets', function () {
     $install = get('assets_install');
