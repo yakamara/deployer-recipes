@@ -15,7 +15,15 @@
         "deployer/deployer": "^7.4"
     },
 
+    "require-dev": {
+        "yakamara/php-cs-fixer-config": "@dev"
+    },
+
     "config": {
         "sort-packages": true
+    },
+
+    "scripts": {
+        "cs-fix": "php-cs-fixer fix -vv"
     }
 }

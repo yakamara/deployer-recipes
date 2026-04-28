@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace Deployer;
 
 use Deployer\Task\Context;
+use RuntimeException;
+
+use function dirname;
 
 $baseDir = dirname(DEPLOYER_DEPLOY_FILE);
 
 localhost('local')
-    ->set('deploy_path', $baseDir.'/.build')
-    ->set('release_path', $baseDir.'/.build/release')
+    ->set('deploy_path', $baseDir . '/.build')
+    ->set('release_path', $baseDir . '/.build/release')
     ->set('current_path', '{{release_path}}')
 ;
 
-set('branch', fn () => runLocally('git rev-parse --abbrev-ref HEAD'));
+set('branch', static fn () => runLocally('git rev-parse --abbrev-ref HEAD'));
 
 set('composer_options', '--verbose --prefer-dist --no-progress --no-interaction --no-dev --no-scripts --optimize-autoloader --classmap-authoritative');
 
@@ -52,8 +55,8 @@ task('deploy', [
     'release',
 ]);
 
-task('build:start', function () {
-    on(host('local'), fn () => invoke('build'));
+task('build:start', static function () {
+    on(host('local'), static fn () => invoke('build'));
 })->once()->hidden();
 
 task('build', [
@@ -78,9 +81,9 @@ task('release', [
     'deploy:publish',
 ]);
 
-task('build:setup', function () use ($baseDir) {
+task('build:setup', static function () use ($baseDir) {
     if ('local' !== Context::get()->getHost()->getAlias()) {
-        throw new \RuntimeException('Task "build" can only be called on host "local"');
+        throw new RuntimeException('Task "build" can only be called on host "local"');
     }
 
     if (getenv('CI')) {
@@ -96,7 +99,7 @@ task('build:setup', function () use ($baseDir) {
     invoke('deploy:update_code');
 });
 
-set('assets_package_manager', function () {
+set('assets_package_manager', static function () {
     if (test('[ -f {{release_path}}/yarn.lock ]')) {
         return 'yarn';
     }
@@ -107,7 +110,7 @@ set('assets_package_manager', function () {
     return null;
 });
 
-set('assets_install', function () {
+set('assets_install', static function () {
     $ci = getenv('CI');
 
     return match (get('assets_package_manager')) {
@@ -117,7 +120,7 @@ set('assets_install', function () {
     };
 });
 
-set('assets_build', function () {
+set('assets_build', static function () {
     return match (get('assets_package_manager')) {
         'yarn' => 'yarn build',
         'npm' => 'npm run build',
@@ -125,7 +128,7 @@ set('assets_build', function () {
     };
 });
 
-task('build:assets', function () {
+task('build:assets', static function () {
     $install = get('assets_install');
 
     if (!$install) {
@@ -141,10 +144,10 @@ task('build:assets', function () {
     }
 });
 
-task('upload', function () use ($baseDir) {
+task('upload', static function () use ($baseDir) {
     $source = getenv('CI') ? $baseDir : host('local')->get('release_path');
 
-    upload($source.'/', '{{release_path}}', [
+    upload($source . '/', '{{release_path}}', [
         'flags' => '-rltz',
         'options' => [
             '--executability',

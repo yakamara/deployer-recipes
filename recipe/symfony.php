@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Deployer;
 
-require 'phar://'.DEPLOYER_BIN.'/recipe/symfony.php';
-require __DIR__.'/base.php';
+require 'phar://' . DEPLOYER_BIN . '/recipe/symfony.php';
+require __DIR__ . '/base.php';
 
 set('copy_dirs', [
     'bin',
@@ -18,19 +18,19 @@ set('copy_dirs', [
     'vendor',
 ]);
 
-task('deploy:assets:install', function () {
+task('deploy:assets:install', static function () {
     run('{{bin/console}} assets:install --symlink {{console_options}}');
 });
 after('deploy:cache:clear', 'deploy:assets:install');
 
-task('deploy:stop_workers', function () {
+task('deploy:stop_workers', static function () {
     if (!has('previous_release')) {
         return;
     }
 
     $console = '{{bin/php}} {{previous_release}}/bin/console';
-    if (test('[[ $('.$console.' list --raw {{console_options}} | grep messenger:stop-workers) ]]')) {
-        run($console.' messenger:stop-workers {{console_options}}');
+    if (test('[[ $(' . $console . ' list --raw {{console_options}} | grep messenger:stop-workers) ]]')) {
+        run($console . ' messenger:stop-workers {{console_options}}');
     }
 });
 after('deploy:symlink', 'deploy:stop_workers');
