@@ -7,6 +7,11 @@ namespace Deployer;
 require 'phar://' . DEPLOYER_BIN . '/recipe/symfony.php';
 require __DIR__ . '/base.php';
 
+set('writable_dirs', [
+    'var/cache',
+    'var/log',
+]);
+
 set('copy_dirs', [
     'bin',
     'config',
