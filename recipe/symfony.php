@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Deployer;
 
-require 'phar://' . DEPLOYER_BIN . '/recipe/symfony.php';
+require 'recipe/symfony.php';
 require __DIR__ . '/base.php';
 
 set('writable_dirs', [
