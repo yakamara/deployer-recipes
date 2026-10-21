@@ -161,3 +161,39 @@ task('upload', static function () use ($baseDir) {
         ],
     ]);
 });
+
+// The web server's opcache can't be reset from the CLI, so it is reset via a temporary script requested over http.
+// The script is placed in the previous release as well, since the realpath cache may still resolve to it.
+set('clear_web_php_cache', false);
+set('public_dir', 'public');
+set('url', 'https://{{hostname}}');
+
+task('server:clear_cache', static function () {
+    if (!get('clear_web_php_cache')) {
+        return;
+    }
+
+    $paths = ['{{current_path}}/{{public_dir}}'];
+    if (has('previous_release')) {
+        $paths[] = '{{previous_release}}/{{public_dir}}';
+    }
+
+    $dir = '_clear_cache_' . bin2hex(random_bytes(8));
+    $code = '<?php clearstatcache(true); if (function_exists("opcache_reset")) { opcache_reset(); }';
+
+    try {
+        foreach ($paths as $path) {
+            run("mkdir -p $path/$dir");
+            // overrides a basic auth of staging instances
+            run("echo 'Require all granted' > $path/$dir/.htaccess");
+            run('echo ' . escapeshellarg($code) . " > $path/$dir/index.php");
+        }
+
+        run("curl -fsS {{url}}/$dir/index.php");
+    } finally {
+        foreach ($paths as $path) {
+            run("rm -rf $path/$dir");
+        }
+    }
+});
+after('deploy:symlink', 'server:clear_cache');
